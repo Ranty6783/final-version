@@ -6,6 +6,9 @@ const BASE_H = 1080;
 function sx(x){ return x * width / BASE_W; }
 function sy(y){ return y * height / BASE_H; }
 
+/* ================= 開始畫面 ================= */
+let showIntro = true;
+
 /* ================= 角色 / 動畫 ================= */
 let spriteSheet1, spriteSheet2, spriteSheet3, bgm;
 let frame1=0, frame2=0, frame3=0;
@@ -91,6 +94,28 @@ function draw(){
   }
 
   drawDialogBox();
+
+  if(showIntro) drawIntro();
+}
+
+/* ================= 開始畫面 ================= */
+function drawIntro(){
+  fill(0,180);
+  rect(0,0,width,height);
+
+  fill(255);
+  textAlign(CENTER,CENTER);
+  textSize(sy(36));
+  text(
+`遊戲規則
+1.方向鍵移動角色
+2.可點擊"E"進行角色互動
+3.鍵盤左上"1"、"2"、"3"可進行答題(並非右側數字鍵)
+4.疑惑時請點擊身旁小精靈尋求支援
+
+按下任意鍵(關機鍵外)繼續遊戲`,
+  width/2,height/2
+  );
 }
 
 /* ================= 提問者 ================= */
@@ -133,7 +158,7 @@ function drawPlayer(){
       sx(fw*3),sy(sheet.height*3),
       playerFrame*fw,0,fw,sheet.height); 
   }
-  updatePlayerMovement();
+  if(!showIntro) updatePlayerMovement();
 }
 
 /* ================= 小精靈 ================= */
@@ -149,6 +174,7 @@ function drawFairy(){
 
 /* ================= E 互動 ================= */
 function drawInteractionHint(){
+  if(showIntro) return;
   if(gameState!=="free"||getNearestAsker()===-1) return;
   fill(0,180); rect(sx(840),sy(980),sx(240),sy(34),8);
   fill(255); textAlign(CENTER,CENTER); textSize(sy(18));
@@ -204,6 +230,8 @@ function parseQuestions(){
 
 /* ================= 操作 ================= */
 function keyPressed(){
+  if(showIntro){ showIntro=false; return; }
+
   if(!bgmStarted){ userStartAudio(); bgm.loop(); bgmStarted=true; }
 
   if(keyCode===69 && gameState==="free"){
@@ -229,6 +257,7 @@ function keyPressed(){
 
 /* ================= 小精靈點擊 ================= */
 function mousePressed(){
+  if(showIntro) return;
   let fx=sx(playerX-80+fairyFrameW);
   let fy=sy(playerY-120+fairyFrameH);
   if(dist(mouseX,mouseY,fx,fy)<sx(40)){
